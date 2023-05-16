@@ -1,20 +1,33 @@
 import Image from "next/image";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { FormEvent, SyntheticEvent, useEffect, useState } from "react";
 
-type PredictionType = {
-  material: string;
+type UploadedImageType = {
   bucket: string;
   input_file: string;
   output_file: string;
 };
 
+type PredictionType = {
+  colors: string[];
+  defects: UploadedImageType;
+  dimensions: UploadedImageType & {
+    predicted_height: number;
+    predicted_width: number;
+  };
+  materials: string;
+  transparent: UploadedImageType;
+};
+
 export default function Home() {
   const [images, setImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<PredictionType[]>([]);
 
-  const handleImageChange = (event: SyntheticEvent) => {
-    setImages([...(event.target as HTMLInputElement).files]);
+  const handleImageChange = (event: FormEvent<HTMLInputElement>) => {
+    const target = event.target as HTMLInputElement;
+    const fileList = target.files ? Array.from(target.files) : [];
+
+    setImages(fileList);
   };
 
   const handleOnSubmit = async (e: SyntheticEvent) => {
@@ -30,8 +43,7 @@ export default function Home() {
       method: form.method,
       body: formData,
     });
-    const data: PredictionType = await res.json();
-    console.log(data);
+    const data = await res.json();
 
     setResults(data);
   };
