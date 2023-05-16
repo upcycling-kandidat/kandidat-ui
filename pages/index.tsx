@@ -22,6 +22,8 @@ export default function Home() {
   const [images, setImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [results, setResults] = useState<PredictionType[]>([]);
+  const STORAGE_API_URL = "https://storage.adamnor.com";
+
 
   const handleImageChange = (event: FormEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -134,7 +136,7 @@ export default function Home() {
               <div className="bg-stone-800 p-4 rounded mt-10">
                 <p className="p-0">Prediction:</p>
                 <Image
-                  src={`http://localhost:9000/${result.defects.bucket}/${result.defects.output_file}`}
+                  src={`${STORAGE_API_URL}/${result.defects.bucket}/${result.defects.output_file}`}
                   alt="image"
                   width={400}
                   height={400}
@@ -144,7 +146,7 @@ export default function Home() {
               <div className="bg-stone-800 p-2 mt-4">
                 <p className="p-0">Dimension:</p>
                 <Image
-                  src={`http://localhost:9000/${result.dimensions.bucket}/${result.dimensions.output_file}`}
+                  src={`${STORAGE_API_URL}/${result.dimensions.bucket}/${result.dimensions.output_file}`}
                   alt="image"
                   width={400}
                   height={400}
@@ -154,7 +156,7 @@ export default function Home() {
               <div className="bg-stone-800 p-2 mt-4">
                 <p className="p-0">Transparent:</p>
                 <Image
-                  src={`http://localhost:9000/${result.transparent.bucket}/${result.transparent.output_file}`}
+                  src={`${STORAGE_API_URL}/${result.transparent.bucket}/${result.transparent.output_file}`}
                   alt="image"
                   width={400}
                   height={400}
