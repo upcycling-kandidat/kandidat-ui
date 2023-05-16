@@ -6,6 +6,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'storage.adamnor.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'backend.adamnor.com',
       }
     ]
   }

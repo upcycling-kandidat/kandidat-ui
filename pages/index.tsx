@@ -1,29 +1,27 @@
 import Image from "next/image";
-import { FormEvent, SyntheticEvent, useEffect, useState } from "react";
-
-type UploadedImageType = {
-  bucket: string;
-  input_file: string;
-  output_file: string;
-};
+import {
+  FormEvent,
+  Fragment,
+  SyntheticEvent,
+  useEffect,
+  useState,
+} from "react";
 
 type PredictionType = {
-  colors: string[];
-  defects: UploadedImageType;
-  dimensions: UploadedImageType & {
-    predicted_height: number;
-    predicted_width: number;
-  };
-  materials: string;
-  transparent: UploadedImageType;
+  components: string[];
+  defects: string[];
+  materials: string[];
+  dimensions: { predicted_height: number; predicted_width: number }[];
+  transparent: string[];
+  colors: string[][];
 };
 
 export default function Home() {
   const [images, setImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [results, setResults] = useState<PredictionType[]>([]);
-  const STORAGE_API_URL = "https://storage.adamnor.com";
+  const [results, setResults] = useState<PredictionType>();
 
+  const IMAGE_URL = "https://backend.adamnor.com/";
 
   const handleImageChange = (event: FormEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -41,12 +39,55 @@ export default function Home() {
       formData.append("file", img, img.name);
     });
 
-    const res = await fetch(form.action, {
-      method: form.method,
-      body: formData,
-    });
-    const data = await res.json();
+    const [
+      resComponents,
+      resDefects,
+      resMaterials,
+      resDimensions,
+      resTransparent,
+      resColors,
+    ] = await Promise.all([
+      fetch("https://backend.adamnor.com/components", {
+        method: form.method,
+        body: formData,
+      }),
 
+      fetch("https://backend.adamnor.com/defects", {
+        method: form.method,
+        body: formData,
+      }),
+
+      fetch("https://backend.adamnor.com/materials", {
+        method: form.method,
+        body: formData,
+      }),
+
+      fetch("https://backend.adamnor.com/dimensions", {
+        method: form.method,
+        body: formData,
+      }),
+
+      fetch("https://backend.adamnor.com/transparent", {
+        method: form.method,
+        body: formData,
+      }),
+
+      fetch("https://backend.adamnor.com/colors", {
+        method: form.method,
+        body: formData,
+      }),
+    ]).then((responses) =>
+      Promise.all(responses.map((response) => response.json()))
+    );
+
+    const data = {
+      components: resComponents,
+      defects: resDefects,
+      materials: resMaterials,
+      dimensions: resDimensions,
+      transparent: resTransparent,
+      colors: resColors,
+    };
     setResults(data);
   };
 
@@ -63,11 +104,7 @@ export default function Home() {
     <div className="max-w-8xl p-5 mx-auto">
       <h1 className="text-7xl mt-20 font-bold">kandidat-ui</h1>
 
-      <form
-        action={process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/predict` : "http://localhost:5000/predict"}
-        method="POST"
-        onSubmit={handleOnSubmit}
-      >
+      <form method="POST" onSubmit={handleOnSubmit}>
         <div className="pt-10">
           <input
             className="file:mr-4 file:py-2 file:px-4
@@ -102,69 +139,89 @@ export default function Home() {
       <h2 className="text-7xl font-bold mt-5">results</h2>
 
       <div className="flex gap-6 my-10 px-10 bg-stone-900 rounded-md">
-        {results.map((result, index) => {
-          return (
-            <div key={`${result}-${index}`} className="m-5">
-              <h2 className="text-xl mt-4">
-                Material:{" "}
-                <span className="text-sm border px-5 py-1 rounded-full">
-                  {result.materials}
+        {results && (
+          <div className="m-5">
+            <h2 className="text-xl mt-4">
+              Material:{" "}
+              {results.materials.map((material, index) => (
+                <span
+                  key={index}
+                  className="text-sm border px-5 py-1 rounded-full"
+                >
+                  {material}
                 </span>
-              </h2>
+              ))}
+            </h2>
 
-              <h2 className="text-xl mt-4">
-                Dimensions:{" "}
-                <span className="text-sm border px-5 py-1 rounded-full">
-                  Width: {result.dimensions.predicted_width} cm
-                </span>
-                <span className="text-sm border px-5 py-1 rounded-full ml-2">
-                  Height: {result.dimensions.predicted_height} cm
-                </span>
-              </h2>
+            <h2 className="text-xl mt-4 flex">
+              Colors:{" "}
+              {results.colors.map((color, index) => (
+                <Fragment key={index}>
+                  {color.map((cl, index) => (
+                    <span
+                      key={`${color}-${index}`}
+                      className="inline-block w-8 h-8 rounded ml-3"
+                      style={{ backgroundColor: cl }}
+                    ></span>
+                  ))}
+                </Fragment>
+              ))}
+            </h2>
 
-              <h2 className="text-xl mt-4 flex">
-                Colors:{" "}
-                {result.colors.map((color, index) => (
-                  <span
-                    key={`${color}-${index}`}
-                    style={{ backgroundColor: color }}
-                    className={`block w-8 h-8 rounded ml-3`}
-                  ></span>
-                ))}
-              </h2>
+            <h2 className="text-xl mt-4">
+              Dimensions:{" "}
+              {results.dimensions.map((dimension, index) => (
+                <Fragment key={index}>
+                  <span className="text-sm border px-5 py-1 rounded-full">
+                    Width: {dimension.predicted_width} cm
+                  </span>
+                  <span className="text-sm border px-5 py-1 rounded-full ml-2">
+                    Height: {dimension.predicted_height} cm
+                  </span>
+                </Fragment>
+              ))}
+            </h2>
 
-              <div className="bg-stone-800 p-4 rounded mt-10">
-                <p className="p-0">Prediction:</p>
+            <div className="bg-stone-800 p-4 rounded mt-10">
+              <p className="p-0">Defects:</p>
+              {results.defects.map((defect, index) => (
                 <Image
-                  src={`${STORAGE_API_URL}/${result.defects.bucket}/${result.defects.output_file}`}
+                  key={index}
+                  src={`${IMAGE_URL}/${defect}`}
                   alt="image"
                   width={400}
                   height={400}
                 />
-              </div>
-
-              <div className="bg-stone-800 p-2 mt-4">
-                <p className="p-0">Dimension:</p>
-                <Image
-                  src={`${STORAGE_API_URL}/${result.dimensions.bucket}/${result.dimensions.output_file}`}
-                  alt="image"
-                  width={400}
-                  height={400}
-                />
-              </div>
-
-              <div className="bg-stone-800 p-2 mt-4">
-                <p className="p-0">Transparent:</p>
-                <Image
-                  src={`${STORAGE_API_URL}/${result.transparent.bucket}/${result.transparent.output_file}`}
-                  alt="image"
-                  width={400}
-                  height={400}
-                />
-              </div>
+              ))}
             </div>
-          );
-        })}
+
+            <div className="bg-stone-800 p-4 rounded mt-10">
+              <p className="p-0">Components:</p>
+              {results.components.map((component, index) => (
+                <Image
+                  key={index}
+                  src={`${IMAGE_URL}/${component}`}
+                  alt="image"
+                  width={400}
+                  height={400}
+                />
+              ))}
+            </div>
+
+            <div className="bg-stone-800 p-2 mt-4">
+              <p className="p-0">Transparent:</p>
+              {results.transparent.map((transparent, index) => (
+                <Image
+                  key={index}
+                  src={`${IMAGE_URL}/${transparent}`}
+                  alt="image"
+                  width={400}
+                  height={400}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
