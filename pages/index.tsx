@@ -62,7 +62,7 @@ export default function Home() {
       <h1 className="text-7xl mt-20 font-bold">kandidat-ui</h1>
 
       <form
-        action="http://localhost:5000/predict"
+        action={process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/predict` : "http://localhost:5000/predict"}
         method="POST"
         onSubmit={handleOnSubmit}
       >
