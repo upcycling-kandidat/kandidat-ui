@@ -173,10 +173,10 @@ export default function Home() {
               {results.dimensions.map((dimension, index) => (
                 <Fragment key={index}>
                   <span className="text-sm border px-5 py-1 rounded-full">
-                    Width: {dimension.predicted_width} cm
+                    Width: {dimension.predicted_height} cm
                   </span>
                   <span className="text-sm border px-5 py-1 rounded-full ml-2">
-                    Height: {dimension.predicted_height} cm
+                    Height: {dimension.predicted_width} cm
                   </span>
                 </Fragment>
               ))}
