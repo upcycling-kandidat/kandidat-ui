@@ -102,7 +102,7 @@ export default function Home() {
 
   return (
     <div className="max-w-8xl p-5 mx-auto">
-      <h1 className="text-7xl mt-20 font-bold">kandidat-ui</h1>
+      <h1 className="text-7xl mt-20 font-bold">Input</h1>
 
       <form method="POST" onSubmit={handleOnSubmit}>
         <div className="pt-10">
@@ -136,7 +136,7 @@ export default function Home() {
         </button>
       </form>
 
-      <h2 className="text-7xl font-bold mt-5">results</h2>
+      <h2 className="text-7xl font-bold mt-5">Output</h2>
 
       <div className="flex gap-6 my-10 px-10 bg-stone-900 rounded-md">
         {results && (
@@ -182,43 +182,45 @@ export default function Home() {
               ))}
             </h2>
 
-            <div className="bg-stone-800 p-4 rounded mt-10">
-              <p className="p-0">Defects:</p>
-              {results.defects.map((defect, index) => (
-                <Image
-                  key={index}
-                  src={`${IMAGE_URL}/${defect}`}
-                  alt="image"
-                  width={400}
-                  height={400}
-                />
-              ))}
-            </div>
+            <div className="flex">
+              <div className="bg-stone-800 p-4 mt-10">
+                <p className="p-0">Defects:</p>
+                {results.defects.map((defect, index) => (
+                  <Image
+                    key={index}
+                    src={`${IMAGE_URL}/${defect}`}
+                    alt="image"
+                    width={400}
+                    height={400}
+                  />
+                ))}
+              </div>
 
-            <div className="bg-stone-800 p-4 rounded mt-10">
-              <p className="p-0">Components:</p>
-              {results.components.map((component, index) => (
-                <Image
-                  key={index}
-                  src={`${IMAGE_URL}/${component}`}
-                  alt="image"
-                  width={400}
-                  height={400}
-                />
-              ))}
-            </div>
+              <div className="bg-stone-800 p-4 mt-10">
+                <p className="p-0">Components:</p>
+                {results.components.map((component, index) => (
+                  <Image
+                    key={index}
+                    src={`${IMAGE_URL}/${component}`}
+                    alt="image"
+                    width={400}
+                    height={400}
+                  />
+                ))}
+              </div>
 
-            <div className="bg-stone-800 p-2 mt-4">
-              <p className="p-0">Transparent:</p>
-              {results.transparent.map((transparent, index) => (
-                <Image
-                  key={index}
-                  src={`${IMAGE_URL}/${transparent}`}
-                  alt="image"
-                  width={400}
-                  height={400}
-                />
-              ))}
+              <div className="bg-stone-800 p-2 mt-10">
+                <p className="p-0">Transparent:</p>
+                {results.transparent.map((transparent, index) => (
+                  <Image
+                    key={index}
+                    src={`${IMAGE_URL}/${transparent}`}
+                    alt="image"
+                    width={400}
+                    height={400}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}
